@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drag & Drop Code Replacer</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            overflow: hidden;
+        }
+        #drop-zone {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            border: 4px dashed #38bdf8;
+            border-radius: 12px;
+            margin: 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        #drop-zone.dragover {
+            background-color: #1e293b;
+            border-color: #0ea5e9;
+            transform: scale(0.99);
+        }
+        .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            user-select: none;
+        }
+        h1 {
+            font-size: 24px;
+            margin: 0 0 10px 0;
+            font-weight: 600;
+        }
+        p {
+            font-size: 16px;
+            color: #94a3b8;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="drop-zone">
+        <div class="icon">📥</div>
+        <h1>Drag & Drop Your File Here</h1>
+        <p>Supports any file size. The source code of this page will be instantly replaced.</p>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+
+        // Prevent default browser behavior (opening the file)
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            window.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        // Add visual visual feedback on drag
+        ['dragenter', 'dragover'].forEach(eventName => {
+            window.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            window.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+        });
+
+        // Handle dropped files
+        window.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            if (files.length > 0) {
+                const file = files[0];
+                const reader = new FileReader();
+
+                // Read file as plain text strings
+                reader.onload = function(event) {
+                    const fileContent = event.target.result;
+                    
+                    // Replace the document content with the uploaded file stream
+                    document.open();
+                    document.write(fileContent);
+                    document.close();
+                };
+
+                reader.readAsText(file);
+            }
+        }
+    </script>
+</body>
+</html>
